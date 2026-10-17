@@ -23,7 +23,11 @@ The Antigravity tool window in Visual Studio 2026 permanently hangs on `"Working
          "http://{0}:{1}{2}{3}extensionView=true&extensionVariant=visual-studio&hostVersion={4}&hostTheme={5}&workspaceUri={6}&extensionVersion={7}",
          ...);
      ```
-   - Notice that `&useWebSocket=true` is omitted from the URL query string.
+   - Notice that `&serverUrl=...&useWebSocket=true` is omitted from the URL query string.
+   - Notably, inside the same assembly in `Google.Antigravity.VisualStudio.AntigravityPackage`:
+     - `BuildSettingsUrl` includes: `&serverUrl=http://{2}:{3}&useWebSocket=true`
+     - `BuildArtifactUrl` includes: `&serverUrl=http://{2}:{3}&useWebSocket=true`
+     This demonstrates that `useWebSocket=true` was intended across the extension, but was inadvertently omitted in `AntigravityToolWindowControl.cs` (`BuildTargetUrlWithWorkspace` and `ConnectAndNavigateAsync`).
 2. In the Chromium network stack (underlying WebView2):
    - Without `useWebSocket=true`, the web UI falls back to HTTP/1.1 chunked/streaming RPCs.
    - Chromium imposes a strict hard ceiling of **6 concurrent connections per host/port** (`kDefaultMaxSocketsPerGroup = 6`).
